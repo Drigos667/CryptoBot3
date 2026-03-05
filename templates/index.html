@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>CryptoBot</title>
+
+<style>
+
+body{
+font-family:Arial;
+background: #101012;
+color:white;
+text-align:center;
+}
+
+#chat{
+width:60%;
+margin:auto;
+margin-top:30px;
+text-align:left;
+}
+
+input{
+width:60%;
+padding:10px;
+}
+
+button{
+padding:10px;
+}
+
+.message{
+background: #343639;
+padding:10px;
+margin:10px;
+border-radius:8px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>CryptoBot</h1>
+
+<input id="msg" placeholder="Peça um código Python">
+<button onclick="send()">Gerar</button>
+
+<div id="chat"></div>
+
+<script>
+
+async function send(){
+
+let input=document.getElementById("msg")
+let msg=input.value
+
+let chat=document.getElementById("chat")
+
+chat.innerHTML+=`<div class="message"><b>Você:</b> ${msg}</div>`
+
+let res=await fetch("/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:msg})
+})
+
+let data=await res.json()
+
+chat.innerHTML+=`<div class="message"><b>IA:</b><pre>${data.reply}</pre></div>`
+
+input.value=""
+
+}
+
+</script>
+
+</body>
+
+</html>
