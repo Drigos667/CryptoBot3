@@ -10,49 +10,51 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 history = []
 
 system_prompt = """
-Você é um engenheiro de software especialista em criar sites modernos.
+Você é um engenheiro de software profissional.
 
-Sempre que o usuário pedir um site você deve criar um projeto PROFISSIONAL.
+Quando o usuário pedir um site você deve gerar um PROJETO COMPLETO.
 
-O site deve ter:
+O site deve conter:
 
 • Interface moderna
-• Design bonito
-• Responsivo
 • Layout profissional
-• Componentes modernos
+• Responsivo
+• Navegação entre páginas
+• Design bonito
 • Animações
-• Estrutura real de projeto
+• Estrutura real de site
 
-Tecnologias obrigatórias:
+Tecnologias:
 
 HTML5
-CSS3 moderno
+CSS3
 JavaScript
 
-O HTML deve conectar o CSS e JS corretamente.
-
-Sempre gere:
+Arquivos obrigatórios:
 
 FILE: index.html
+FILE: about.html
+FILE: contact.html
 FILE: style.css
 FILE: script.js
 
-REGRAS IMPORTANTES:
+Regras:
 
 1 Não explique nada
 2 Não escreva texto fora dos arquivos
 3 Gere apenas código
-4 O design deve ser moderno
-5 Use flexbox ou grid
-6 Use animações e hover
-7 Crie layouts profissionais
-8 Use imagens de exemplo
-9 Sempre crie interface completa
+4 Use flexbox ou grid
+5 Design moderno
 
 Formato obrigatório:
 
 FILE: index.html
+[codigo]
+
+FILE: about.html
+[codigo]
+
+FILE: contact.html
 [codigo]
 
 FILE: style.css
@@ -66,18 +68,18 @@ def extract_files(text):
 
     files = {}
 
-    html_match = re.search(r"FILE:\s*index\.html\s*(.*?)FILE:\s*style\.css", text, re.S | re.I)
-    css_match = re.search(r"FILE:\s*style\.css\s*(.*?)FILE:\s*script\.js", text, re.S | re.I)
-    js_match = re.search(r"FILE:\s*script\.js\s*(.*)", text, re.S | re.I)
+    patterns = {
+        "html": r"FILE:\s*index\.html\s*(.*?)FILE:\s*about\.html",
+        "about": r"FILE:\s*about\.html\s*(.*?)FILE:\s*contact\.html",
+        "contact": r"FILE:\s*contact\.html\s*(.*?)FILE:\s*style\.css",
+        "css": r"FILE:\s*style\.css\s*(.*?)FILE:\s*script\.js",
+        "js": r"FILE:\s*script\.js\s*(.*)"
+    }
 
-    if html_match:
-        files["html"] = html_match.group(1).strip()
-
-    if css_match:
-        files["css"] = css_match.group(1).strip()
-
-    if js_match:
-        files["js"] = js_match.group(1).strip()
+    for key, pattern in patterns.items():
+        match = re.search(pattern, text, re.S | re.I)
+        if match:
+            files[key] = match.group(1).strip()
 
     return files
 
@@ -105,7 +107,7 @@ def chat():
     try:
 
         response = client.chat.completions.create(
-            model="llama-3.1-8b-instant",
+            model="llama-3.3-70b-versatile",
             temperature=0.3,
             max_tokens=2500,
             messages=[{"role": "system", "content": system_prompt}] + history
@@ -141,4 +143,3 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=port
     )
-
