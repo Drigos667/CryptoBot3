@@ -5,11 +5,13 @@
 
 <title>CryptoBot</title>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
 <style>
 
 body{
 font-family:Arial;
-background:#101012;
+background:#0f0f12;
 color:white;
 text-align:center;
 margin:0;
@@ -23,10 +25,10 @@ margin-top:20px;
 width:60%;
 height:350px;
 margin:auto;
-margin-top:30px;
+margin-top:20px;
 text-align:left;
 overflow-y:auto;
-background:#18181b;
+background:#1a1a1f;
 padding:10px;
 border-radius:10px;
 }
@@ -52,7 +54,6 @@ background:#45a049;
 }
 
 .message{
-background:#343639;
 padding:10px;
 margin:10px;
 border-radius:8px;
@@ -93,20 +94,21 @@ margin-top:20px;
 <input id="msg" placeholder="Peça um site ou código...">
 <button onclick="send()">Gerar</button>
 
-<h2>Preview do Site</h2>
+<br><br>
+
+<h2>Preview</h2>
 
 <iframe id="preview"></iframe>
 
 <br><br>
 
-<button onclick="downloadHTML()">Baixar HTML</button>
+<button onclick="downloadProject()">Baixar Projeto</button>
 
 <script>
 
 let input=document.getElementById("msg")
-let lastHTML=""
+let lastFiles={}
 
-// enviar com ENTER
 input.addEventListener("keypress",function(e){
 if(e.key==="Enter"){
 send()
@@ -121,11 +123,10 @@ if(msg==="") return
 
 let chat=document.getElementById("chat")
 
-// mensagem usuário
-let userDiv=document.createElement("div")
-userDiv.className="message user"
-userDiv.textContent="Você: "+msg
-chat.appendChild(userDiv)
+let user=document.createElement("div")
+user.className="message user"
+user.textContent="Você: "+msg
+chat.appendChild(user)
 
 chat.scrollTop=chat.scrollHeight
 
@@ -137,29 +138,38 @@ body:JSON.stringify({message:msg})
 
 let data=await res.json()
 
-// resposta IA
-let botDiv=document.createElement("div")
-botDiv.className="message bot"
+let bot=document.createElement("div")
+bot.className="message bot"
 
 let pre=document.createElement("pre")
 pre.textContent=data.reply
 
-botDiv.appendChild(pre)
+bot.appendChild(pre)
 
-chat.appendChild(botDiv)
+chat.appendChild(bot)
 
 chat.scrollTop=chat.scrollHeight
 
-// detectar html
-if(data.reply.includes("<html") || data.reply.includes("<!DOCTYPE")){
+if(data.files){
 
-lastHTML=data.reply
+lastFiles=data.files
+
+let html=data.files.html || ""
+let css=data.files.css || ""
+let js=data.files.js || ""
+
+let full=`
+<style>${css}</style>
+${html}
+<script>${js}<\/script>
+`
 
 let iframe=document.getElementById("preview")
 
 let doc=iframe.contentWindow.document
+
 doc.open()
-doc.write(lastHTML)
+doc.write(full)
 doc.close()
 
 }
@@ -168,24 +178,32 @@ input.value=""
 
 }
 
-// baixar html
-function downloadHTML(){
+function downloadProject(){
 
-if(lastHTML===""){
+if(!lastFiles.html){
 alert("Nenhum site gerado ainda")
 return
 }
 
-let blob=new Blob([lastHTML],{type:"text/html"})
+let zip=new JSZip()
+
+zip.file("index.html", lastFiles.html)
+zip.file("style.css", lastFiles.css || "")
+zip.file("script.js", lastFiles.js || "")
+
+zip.generateAsync({type:"blob"}).then(function(content){
 
 let a=document.createElement("a")
-a.href=URL.createObjectURL(blob)
-a.download="site.html"
+a.href=URL.createObjectURL(content)
+a.download="site.zip"
 a.click()
+
+})
 
 }
 
 </script>
 
 </body>
+
 </html>
