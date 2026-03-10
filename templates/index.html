@@ -21,7 +21,7 @@ margin-top:20px;
 
 #chat{
 width:60%;
-height:400px;
+height:350px;
 margin:auto;
 margin-top:30px;
 text-align:left;
@@ -68,10 +68,13 @@ background:#343639;
 
 pre{
 white-space:pre-wrap;
-word-wrap:break-word;
 }
 
-#inputArea{
+#preview{
+width:80%;
+height:400px;
+border:1px solid #444;
+border-radius:10px;
 margin-top:20px;
 }
 
@@ -85,14 +88,23 @@ margin-top:20px;
 
 <div id="chat"></div>
 
-<div id="inputArea">
-<input id="msg" placeholder="Peça um código...">
+<br>
+
+<input id="msg" placeholder="Peça um site ou código...">
 <button onclick="send()">Gerar</button>
-</div>
+
+<h2>Preview do Site</h2>
+
+<iframe id="preview"></iframe>
+
+<br><br>
+
+<button onclick="downloadHTML()">Baixar HTML</button>
 
 <script>
 
 let input=document.getElementById("msg")
+let lastHTML=""
 
 // enviar com ENTER
 input.addEventListener("keypress",function(e){
@@ -109,10 +121,10 @@ if(msg==="") return
 
 let chat=document.getElementById("chat")
 
-// mensagem do usuário
+// mensagem usuário
 let userDiv=document.createElement("div")
 userDiv.className="message user"
-userDiv.textContent="Você: " + msg
+userDiv.textContent="Você: "+msg
 chat.appendChild(userDiv)
 
 chat.scrollTop=chat.scrollHeight
@@ -125,28 +137,55 @@ body:JSON.stringify({message:msg})
 
 let data=await res.json()
 
-// resposta da IA
+// resposta IA
 let botDiv=document.createElement("div")
 botDiv.className="message bot"
 
-let title=document.createElement("b")
-title.textContent="IA:"
-botDiv.appendChild(title)
-
 let pre=document.createElement("pre")
-pre.textContent=data.reply   // IMPORTANTE: mostra o código como texto
+pre.textContent=data.reply
+
 botDiv.appendChild(pre)
 
 chat.appendChild(botDiv)
 
 chat.scrollTop=chat.scrollHeight
 
+// detectar html
+if(data.reply.includes("<html") || data.reply.includes("<!DOCTYPE")){
+
+lastHTML=data.reply
+
+let iframe=document.getElementById("preview")
+
+let doc=iframe.contentWindow.document
+doc.open()
+doc.write(lastHTML)
+doc.close()
+
+}
+
 input.value=""
+
+}
+
+// baixar html
+function downloadHTML(){
+
+if(lastHTML===""){
+alert("Nenhum site gerado ainda")
+return
+}
+
+let blob=new Blob([lastHTML],{type:"text/html"})
+
+let a=document.createElement("a")
+a.href=URL.createObjectURL(blob)
+a.download="site.html"
+a.click()
 
 }
 
 </script>
 
 </body>
-
 </html>
