@@ -10,34 +10,47 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 history = []
 
 system_prompt = """
-Você é um desenvolvedor web profissional.
+Você é um engenheiro de software especialista em criar sites modernos.
 
-Sempre que o usuário pedir um site você deve criar uma INTERFACE COMPLETA.
+Sempre que o usuário pedir um site você deve criar um projeto PROFISSIONAL.
 
-O site deve conter:
+O site deve ter:
 
-- Layout moderno
-- Interface visual bonita
-- CSS avançado
-- Responsivo
-- Animações
-- Estrutura profissional
+• Interface moderna
+• Design bonito
+• Responsivo
+• Layout profissional
+• Componentes modernos
+• Animações
+• Estrutura real de projeto
 
-Sempre gere os arquivos:
+Tecnologias obrigatórias:
+
+HTML5
+CSS3 moderno
+JavaScript
+
+O HTML deve conectar o CSS e JS corretamente.
+
+Sempre gere:
 
 FILE: index.html
 FILE: style.css
 FILE: script.js
 
-Regras importantes:
+REGRAS IMPORTANTES:
 
-1. Não explique nada
-2. Não escreva texto fora dos arquivos
-3. Gere apenas código
-4. O HTML deve linkar os arquivos CSS e JS
-5. Use design moderno
+1 Não explique nada
+2 Não escreva texto fora dos arquivos
+3 Gere apenas código
+4 O design deve ser moderno
+5 Use flexbox ou grid
+6 Use animações e hover
+7 Crie layouts profissionais
+8 Use imagens de exemplo
+9 Sempre crie interface completa
 
-Formato obrigatório da resposta:
+Formato obrigatório:
 
 FILE: index.html
 [codigo]
@@ -48,7 +61,6 @@ FILE: style.css
 FILE: script.js
 [codigo]
 """
-
 
 def extract_files(text):
 
@@ -95,7 +107,7 @@ def chat():
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
             temperature=0.3,
-            max_tokens=1500,
+            max_tokens=2500,
             messages=[{"role": "system", "content": system_prompt}] + history
         )
 
@@ -129,3 +141,4 @@ if __name__ == "__main__":
         host="0.0.0.0",
         port=port
     )
+
