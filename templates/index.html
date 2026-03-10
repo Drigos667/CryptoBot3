@@ -66,6 +66,11 @@ background:#2563eb;
 background:#343639;
 }
 
+pre{
+white-space:pre-wrap;
+word-wrap:break-word;
+}
+
 #inputArea{
 margin-top:20px;
 }
@@ -104,11 +109,11 @@ if(msg==="") return
 
 let chat=document.getElementById("chat")
 
-chat.innerHTML+=`
-<div class="message user">
-<b>Você:</b> ${msg}
-</div>
-`
+// mensagem do usuário
+let userDiv=document.createElement("div")
+userDiv.className="message user"
+userDiv.textContent="Você: " + msg
+chat.appendChild(userDiv)
 
 chat.scrollTop=chat.scrollHeight
 
@@ -120,12 +125,19 @@ body:JSON.stringify({message:msg})
 
 let data=await res.json()
 
-chat.innerHTML+=`
-<div class="message bot">
-<b>IA:</b>
-<pre>${data.reply}</pre>
-</div>
-`
+// resposta da IA
+let botDiv=document.createElement("div")
+botDiv.className="message bot"
+
+let title=document.createElement("b")
+title.textContent="IA:"
+botDiv.appendChild(title)
+
+let pre=document.createElement("pre")
+pre.textContent=data.reply   // IMPORTANTE: mostra o código como texto
+botDiv.appendChild(pre)
+
+chat.appendChild(botDiv)
 
 chat.scrollTop=chat.scrollHeight
 
