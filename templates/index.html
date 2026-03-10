@@ -91,7 +91,7 @@ margin-top:20px;
 
 <br>
 
-<input id="msg" placeholder="Peça um site ou código...">
+<input id="msg" placeholder="Peça um site...">
 <button onclick="send()">Gerar</button>
 
 <br><br>
@@ -123,12 +123,7 @@ if(msg==="") return
 
 let chat=document.getElementById("chat")
 
-let user=document.createElement("div")
-user.className="message user"
-user.textContent="Você: "+msg
-chat.appendChild(user)
-
-chat.scrollTop=chat.scrollHeight
+chat.innerHTML+=`<div class="message user">Você: ${msg}</div>`
 
 let res=await fetch("/chat",{
 method:"POST",
@@ -138,15 +133,7 @@ body:JSON.stringify({message:msg})
 
 let data=await res.json()
 
-let bot=document.createElement("div")
-bot.className="message bot"
-
-let pre=document.createElement("pre")
-pre.textContent=data.reply
-
-bot.appendChild(pre)
-
-chat.appendChild(bot)
+chat.innerHTML+=`<div class="message bot"><pre>${data.reply}</pre></div>`
 
 chat.scrollTop=chat.scrollHeight
 
@@ -165,7 +152,6 @@ ${html}
 `
 
 let iframe=document.getElementById("preview")
-
 let doc=iframe.contentWindow.document
 
 doc.open()
@@ -181,15 +167,25 @@ input.value=""
 function downloadProject(){
 
 if(!lastFiles.html){
-alert("Nenhum site gerado ainda")
+alert("Nenhum projeto gerado")
 return
 }
 
 let zip=new JSZip()
 
-zip.file("index.html", lastFiles.html)
-zip.file("style.css", lastFiles.css || "")
-zip.file("script.js", lastFiles.js || "")
+for(let file in lastFiles){
+
+let name=file
+
+if(file=="html") name="index.html"
+if(file=="about") name="about.html"
+if(file=="contact") name="contact.html"
+if(file=="css") name="style.css"
+if(file=="js") name="script.js"
+
+zip.file(name,lastFiles[file])
+
+}
 
 zip.generateAsync({type:"blob"}).then(function(content){
 
