@@ -9,32 +9,65 @@
 
 body{
 font-family:Arial;
-background: #101012;
+background:#101012;
 color:white;
 text-align:center;
+margin:0;
+}
+
+h1{
+margin-top:20px;
 }
 
 #chat{
 width:60%;
+height:400px;
 margin:auto;
 margin-top:30px;
 text-align:left;
+overflow-y:auto;
+background:#18181b;
+padding:10px;
+border-radius:10px;
 }
 
 input{
-width:60%;
-padding:10px;
+width:50%;
+padding:12px;
+border:none;
+border-radius:6px;
 }
 
 button{
-padding:10px;
+padding:12px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#4CAF50;
+color:white;
+}
+
+button:hover{
+background:#45a049;
 }
 
 .message{
-background: #343639;
+background:#343639;
 padding:10px;
 margin:10px;
 border-radius:8px;
+}
+
+.user{
+background:#2563eb;
+}
+
+.bot{
+background:#343639;
+}
+
+#inputArea{
+margin-top:20px;
 }
 
 </style>
@@ -45,21 +78,39 @@ border-radius:8px;
 
 <h1>CryptoBot</h1>
 
-<input id="msg" placeholder="Peça um código">
-<button onclick="send()">Gerar</button>
-
 <div id="chat"></div>
+
+<div id="inputArea">
+<input id="msg" placeholder="Peça um código...">
+<button onclick="send()">Gerar</button>
+</div>
 
 <script>
 
+let input=document.getElementById("msg")
+
+// enviar com ENTER
+input.addEventListener("keypress",function(e){
+if(e.key==="Enter"){
+send()
+}
+})
+
 async function send(){
 
-let input=document.getElementById("msg")
-let msg=input.value
+let msg=input.value.trim()
+
+if(msg==="") return
 
 let chat=document.getElementById("chat")
 
-chat.innerHTML+=`<div class="message"><b>Você:</b> ${msg}</div>`
+chat.innerHTML+=`
+<div class="message user">
+<b>Você:</b> ${msg}
+</div>
+`
+
+chat.scrollTop=chat.scrollHeight
 
 let res=await fetch("/chat",{
 method:"POST",
@@ -69,7 +120,14 @@ body:JSON.stringify({message:msg})
 
 let data=await res.json()
 
-chat.innerHTML+=`<div class="message"><b>IA:</b><pre>${data.reply}</pre></div>`
+chat.innerHTML+=`
+<div class="message bot">
+<b>IA:</b>
+<pre>${data.reply}</pre>
+</div>
+`
+
+chat.scrollTop=chat.scrollHeight
 
 input.value=""
 
@@ -78,6 +136,5 @@ input.value=""
 </script>
 
 </body>
-
 
 </html>
