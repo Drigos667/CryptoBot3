@@ -5,51 +5,67 @@ import re
 
 app = Flask(__name__)
 
-# conectar API
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
-# histórico curto
 history = []
 
 system_prompt = """
-Você é uma IA especialista em desenvolvimento web.
+Você é um desenvolvedor web profissional.
 
-Quando o usuário pedir um site você deve gerar um projeto completo com:
+Sempre que o usuário pedir um site você deve criar uma INTERFACE COMPLETA.
+
+O site deve conter:
+
+- Layout moderno
+- Interface visual bonita
+- CSS avançado
+- Responsivo
+- Animações
+- Estrutura profissional
+
+Sempre gere os arquivos:
 
 FILE: index.html
 FILE: style.css
 FILE: script.js
 
-Use HTML5, CSS3 e JavaScript moderno.
+Regras importantes:
 
-Formato da resposta:
+1. Não explique nada
+2. Não escreva texto fora dos arquivos
+3. Gere apenas código
+4. O HTML deve linkar os arquivos CSS e JS
+5. Use design moderno
+
+Formato obrigatório da resposta:
 
 FILE: index.html
-[codigo html]
+[codigo]
 
 FILE: style.css
-[codigo css]
+[codigo]
 
 FILE: script.js
-[codigo javascript]
+[codigo]
 """
+
 
 def extract_files(text):
 
     files = {}
 
-    html = re.search(r"FILE: index.html(.*?)FILE: style.css", text, re.S)
-    css = re.search(r"FILE: style.css(.*?)FILE: script.js", text, re.S)
-    js = re.search(r"FILE: script.js(.*)", text, re.S)
+    html_match = re.search(r"FILE:\s*index\.html\s*(.*?)FILE:\s*style\.css", text, re.S | re.I)
+    css_match = re.search(r"FILE:\s*style\.css\s*(.*?)FILE:\s*script\.js", text, re.S | re.I)
+    js_match = re.search(r"FILE:\s*script\.js\s*(.*)", text, re.S | re.I)
 
-    if html:
-        files["html"] = html.group(1).strip()
+    if html_match:
+        files["html"] = html_match.group(1).strip()
 
-    if css:
-        files["css"] = css.group(1).strip()
+    if css_match:
+        files["css"] = css_match.group(1).strip()
 
-    if js:
-        files["js"] = js.group(1).strip()
+    if js_match:
+        files["js"] = js_match.group(1).strip()
 
     return files
 
@@ -72,15 +88,14 @@ def chat():
         "content": message
     })
 
-    # limitar histórico
     history = history[-6:]
 
     try:
 
         response = client.chat.completions.create(
             model="llama-3.1-8b-instant",
-            max_tokens=1200,
-            temperature=0.2,
+            temperature=0.3,
+            max_tokens=1500,
             messages=[{"role": "system", "content": system_prompt}] + history
         )
 
