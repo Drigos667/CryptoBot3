@@ -60,7 +60,6 @@ return render_template("index.html")
 
 @app.route("/chat", methods=["POST"])
 def chat():
-
 global history
 
 data = request.get_json()
