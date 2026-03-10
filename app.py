@@ -52,7 +52,7 @@ def chat():
         history.pop(0)
 
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.3-70b-instant",
         messages=[{"role": "system", "content": system_prompt}] + history
     )
 
@@ -69,3 +69,4 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+
