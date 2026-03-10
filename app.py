@@ -9,25 +9,15 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 history = []
 
 system_prompt = """
-Você é uma IA engenheira de software de nível mundial.
+Você é uma IA especialista em programação e criação de sites.
 
-Especialista em:
-- Python
-- JavaScript
-- HTML
-- CSS
-- C
-- C++
-- Java
-- APIs
-- Machine Learning
-- Inteligência Artificial
-- Banco de Dados
-- Segurança
-- Automação
-- Web Apps
-- Bots
-- Games
+Se o usuário pedir um site, gere um HTML COMPLETO com:
+- <!DOCTYPE html>
+- <html>
+- <head>
+- <body>
+
+O código deve ser funcional e pronto para abrir no navegador.
 """
 
 @app.route("/")
@@ -48,26 +38,21 @@ def chat():
         "content": message
     })
 
-    if len(history) > 20:
-        history.pop(0)
-
     response = client.chat.completions.create(
         model="llama-3.1-8b-instant",
-        messages=[{"role": "system", "content": system_prompt}] + history
+        messages=[{"role":"system","content":system_prompt}] + history
     )
 
     reply = response.choices[0].message.content
 
     history.append({
-        "role": "assistant",
-        "content": reply
+        "role":"assistant",
+        "content":reply
     })
 
-    return jsonify({"reply": reply})
+    return jsonify({"reply":reply})
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT",5000))
     app.run(host="0.0.0.0", port=port)
-
-
